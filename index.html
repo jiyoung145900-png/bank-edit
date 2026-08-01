@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>고품질 모바일 상단바 & 화면 커스텀 제어기</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     * {
       box-sizing: border-box;
@@ -126,7 +127,7 @@
       justify-content: center;
     }
 
-    /* 실제 배터리 형태 (안드로이드/갤럭시 스타일) */
+    /* 갤럭시 배터리 (기본) */
     .battery-box {
       display: flex;
       align-items: center;
@@ -151,6 +152,22 @@
       height: 8px;
       background: #767676;
       border-radius: 0 2px 2px 0;
+    }
+
+    /* 아이폰 배터리 */
+    .battery-box.iphone-style {
+      background: transparent;
+      color: currentColor;
+      border: 1.5px solid currentColor;
+      border-radius: 3px;
+      padding: 1px 3px;
+      min-width: 24px;
+      height: 11px;
+      font-size: 9px;
+      font-weight: 700;
+    }
+    .battery-box.iphone-style::after {
+      display: none;
     }
 
     /* 하단 내비게이션 바 (안드로이드) */
@@ -274,6 +291,14 @@
     .btn-danger { background: #ff3b30; }
     .btn-danger:hover { background: #d32f2f; }
     .btn-sm { padding: 4px 8px; font-size: 11px; }
+    .btn-download {
+      background: #34C759;
+      width: 100%;
+      margin-top: 10px;
+      padding: 12px;
+      font-size: 13px;
+    }
+    .btn-download:hover { background: #30B050; }
 
     .color-picker-group {
       display: flex;
@@ -286,6 +311,13 @@
       height: 32px;
       border-radius: 50%;
       cursor: pointer;
+    }
+
+    .download-info {
+      font-size: 11px;
+      color: #666;
+      margin-top: 5px;
+      text-align: center;
     }
   </style>
 </head>
@@ -328,7 +360,7 @@
                 </svg>
               </span>
 
-              <!-- 실제 안드로이드 스타일 배터리 -->
+              <!-- 실제 배터리 (기기별 스타일 변함) -->
               <div class="battery-box" id="batteryBox">
                 <span id="displayBattery">81</span>
               </div>
@@ -344,6 +376,10 @@
 
         </div>
       </div>
+
+      <!-- JPG 다운로드 버튼 -->
+      <button class="btn btn-download" id="btnDownloadJpg">📥 화면 이미지 JPG 다운로드</button>
+      <div class="download-info">프레임 제외 화면 영역만 저장됩니다</div>
     </div>
 
     <!-- 오른쪽 상세 제어 컨트롤 패널 -->
@@ -510,29 +546,49 @@
     const activeCustomIcons = document.getElementById('activeCustomIcons');
 
     const bgFileInput = document.getElementById('bgFileInput');
+    const btnDownloadJpg = document.getElementById('btnDownloadJpg');
+
+    // 현재 기기 타입 추적
+    let currentDevice = 'custom-screenshot';
 
     // 커스텀 등록 아이콘 저장 배열
     let customIconLibrary = [];
 
+    // 배터리 스타일을 기기별로 업데이트하는 함수
+    function updateBatteryStyle(device) {
+      batteryBox.classList.remove('iphone-style');
+      
+      if (device === 'iphone-15') {
+        batteryBox.classList.add('iphone-style');
+      } else {
+        // 갤럭시 스타일 (기본)
+        batteryBox.classList.remove('iphone-style');
+      }
+    }
+
     // 1. 기종 및 화면 크기 조절
-    function updateScreenSize(w, h) {
+    function updateScreenSize(w, h, device) {
       phoneScreen.style.width = w + 'px';
       phoneScreen.style.height = h + 'px';
       screenWidth.value = w;
       screenHeight.value = h;
+      currentDevice = device;
+      updateBatteryStyle(device);
     }
 
     devicePreset.addEventListener('change', (e) => {
       const val = e.target.value;
-      if (val === 'custom-screenshot') updateScreenSize(360, 780);
-      else if (val === 'galaxy-s24') updateScreenSize(360, 780);
-      else if (val === 'galaxy-ultra') updateScreenSize(384, 854);
-      else if (val === 'iphone-15') updateScreenSize(393, 852);
+      if (val === 'custom-screenshot') updateScreenSize(360, 780, val);
+      else if (val === 'galaxy-s24') updateScreenSize(360, 780, val);
+      else if (val === 'galaxy-ultra') updateScreenSize(384, 854, val);
+      else if (val === 'iphone-15') updateScreenSize(393, 852, val);
     });
 
     screenWidth.addEventListener('input', () => {
       devicePreset.value = 'custom';
       phoneScreen.style.width = screenWidth.value + 'px';
+      currentDevice = 'custom';
+      updateBatteryStyle('custom');
     });
     screenHeight.addEventListener('input', () => {
       devicePreset.value = 'custom';
@@ -577,11 +633,20 @@
       const hex = e.target.value;
       statusBar.style.color = hex;
       colorHexText.textContent = hex;
-      batteryBox.style.backgroundColor = hex;
+      
+      // 갤럭시 배터리 스타일일 때만 배경색 변경
+      if (!batteryBox.classList.contains('iphone-style')) {
+        batteryBox.style.backgroundColor = hex;
+      }
+      
       // 배터리 배경 및 꼬리 색상
       const styleTag = document.getElementById('dynamicBatteryStyle') || document.createElement('style');
       styleTag.id = 'dynamicBatteryStyle';
-      styleTag.innerHTML = `.battery-box::after { background: ${hex} !important; }`;
+      if (!batteryBox.classList.contains('iphone-style')) {
+        styleTag.innerHTML = `.battery-box::after { background: ${hex} !important; }`;
+      } else {
+        styleTag.innerHTML = ``;
+      }
       document.head.appendChild(styleTag);
     });
 
@@ -693,6 +758,50 @@
           phoneScreen.style.backgroundImage = `url('${evt.target.result}')`;
         };
         reader.readAsDataURL(file);
+      }
+    });
+
+    // 6. JPG 다운로드 기능
+    btnDownloadJpg.addEventListener('click', async () => {
+      btnDownloadJpg.disabled = true;
+      btnDownloadJpg.textContent = '📥 변환 중...';
+
+      try {
+        // html2canvas를 사용하여 화면 캡처
+        const canvas = await html2canvas(phoneScreen, {
+          backgroundColor: null,
+          scale: 2, // 고해상도
+          logging: false,
+          useCORS: true,
+          allowTaint: true
+        });
+
+        // Canvas를 JPEG로 변환
+        const link = document.createElement('a');
+        link.href = canvas.toDataURL('image/jpeg', 0.95);
+        
+        // 파일명 생성 (기기 이름 + 시간)
+        const now = new Date();
+        const timestamp = now.getFullYear() + 
+                         String(now.getMonth() + 1).padStart(2, '0') +
+                         String(now.getDate()).padStart(2, '0') + '_' +
+                         String(now.getHours()).padStart(2, '0') +
+                         String(now.getMinutes()).padStart(2, '0');
+        
+        let deviceName = '화면';
+        if (currentDevice === 'galaxy-s24') deviceName = 'GalaxyS24';
+        else if (currentDevice === 'galaxy-ultra') deviceName = 'GalaxyS24Ultra';
+        else if (currentDevice === 'iphone-15') deviceName = 'iPhone15Pro';
+        
+        link.download = `${deviceName}_${timestamp}.jpg`;
+        link.click();
+
+      } catch (error) {
+        console.error('다운로드 오류:', error);
+        alert('이미지 저장 중 오류가 발생했습니다.\n배경 이미지가 외부 URL인 경우 작동하지 않을 수 있습니다.');
+      } finally {
+        btnDownloadJpg.disabled = false;
+        btnDownloadJpg.textContent = '📥 화면 이미지 JPG 다운로드';
       }
     });
   </script>
