@@ -1,257 +1,186 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <title>BLACKROCK PRO V10.6</title>
-    <style>
-        :root { --bg: #0f0f0f; --panel: #1a1a1a; --item: #252525; --point: #007bff; --text: #e0e0e0; }
-        body { font-family: 'Pretendard', sans-serif; margin: 0; background: var(--bg); color: var(--text); user-select: none; overflow: hidden; }
-        
-        .header { display: flex; align-items: center; padding: 6px 15px; background: var(--panel); border-bottom: 1px solid #333; gap: 10px; }
-        .search-input { flex: 1; background: #000; border: 1px solid #444; color: #00ff00; padding: 5px 12px; border-radius: 4px; outline: none; font-size: 13px; }
-        .btn-group { display: flex; gap: 4px; }
-        .menu-btn { background: #333; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; }
-        .btn-main { background: var(--point) !important; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>스마트폰 화면 커스텀 제어기</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    body {
+      background-color: #eef2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      justify-content: center;
+      align-items: flex-start;
+      max-width: 900px;
+      width: 100%;
+    }
 
-        .container { padding: 8px 12px; height: calc(100vh - 45px); overflow-y: auto; }
-        .tab-bar { display: flex; gap: 4px; margin-bottom: 8px; flex-wrap: wrap; }
-        .tab-btn { padding: 4px 10px; background: #2a2a2a; border: none; color: #888; cursor: pointer; border-radius: 4px; font-size: 12px; transition: 0.2s; }
-        .tab-btn.active { background: var(--point); color: white; font-weight: bold; }
-        .tab-btn:hover { background: #3a3a3a; color: #fff; }
+    /* 핸드폰 외관 프레임 */
+    .phone-mockup {
+      width: 330px;
+      height: 670px;
+      background: #1f1f1f;
+      border-radius: 44px;
+      padding: 12px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+      position: relative;
+    }
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      background-color: #000;
+      border-radius: 34px;
+      overflow: hidden;
+      position: relative;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      display: flex;
+      flex-direction: column;
+    }
 
-        .macro-list { display: grid; grid-template-columns: 1fr; gap: 4px; } 
-        
-        .macro-item { display: flex; align-items: flex-start; background: var(--item); padding: 8px 12px; border-radius: 4px; border: 1px solid #2d2d2d; outline: none; cursor: move; } 
-        .macro-item:hover { border-color: var(--point); background: #2a2a2a; }
-        .macro-item:focus { border-color: #ffc107; background: #333; }
-        
-        .num { color: #555; width: 20px; font-weight: bold; font-size: 11px; flex-shrink: 0; margin-top: 3px; }
-        
-        .macro-content { 
-            flex: 1; 
-            cursor: pointer; 
-            font-size: 14px; 
-            line-height: 1.5; 
-            white-space: pre-wrap; 
-            word-break: break-all; 
-            display: block; 
-            padding-bottom: 2px;
-        }
+    /* 상단 상태바 (시간, 이모티콘 등) */
+    .status-bar {
+      height: 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 22px;
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 600;
+      z-index: 10;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+    }
+    .status-right {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
 
-        #modalOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 5000; align-items: center; justify-content: center; }
-        .modal { background: #1e1e1e; padding: 20px; border-radius: 8px; width: 500px; border: 1px solid var(--point); }
-        .modal-input { width: 100%; background: #000; border: 1px solid #444; color: #fff; padding: 12px; border-radius: 4px; outline: none; font-size: 14px; box-sizing: border-box; margin-bottom: 15px; }
-
-        #contextMenu { display: none; position: fixed; background: #2a2a2a; border: 1px solid #444; z-index: 2000; border-radius: 6px; padding: 5px 0; min-width: 140px; }
-        #contextMenu div { padding: 8px 15px; cursor: pointer; font-size: 13px; color: white; }
-        #contextMenu div:hover { background: var(--point); }
-        #toast { visibility: hidden; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--point); color: white; padding: 8px 20px; border-radius: 30px; font-size: 12px; z-index: 6000; }
-        #toast.show { visibility: visible; animation: fadein 0.2s, fadeout 0.2s 0.7s; }
-        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
-        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
-    </style>
+    /* 컨트롤 패널 */
+    .control-panel {
+      background: #ffffff;
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+      width: 320px;
+    }
+    .control-panel h2 {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: #222;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 6px;
+    }
+    .form-group input[type="text"],
+    .form-group input[type="file"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-group input[type="text"]:focus {
+      border-color: #007aff;
+    }
+    .form-group input[type="file"] {
+      background: #f8f9fa;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
 
-<div id="toast">메신저로 발사!</div>
-<div id="contextMenu"></div>
-
-<div id="modalOverlay">
-    <div class="modal">
-        <div id="modalTitle" style="margin-bottom:10px; color:var(--point); font-weight:bold;">문장 관리</div>
-        <textarea id="modalInp" class="modal-input" rows="12" placeholder="엔터 쳐서 내용을 입력하세요..."></textarea>
-        <div style="display:flex; justify-content:flex-end; gap:10px;">
-            <button class="menu-btn" onclick="closeModal()">취소</button>
-            <button class="menu-btn btn-main" onclick="saveItem()">확인</button>
+  <div class="container">
+    <!-- 핸드폰 프레임 -->
+    <div class="phone-mockup">
+      <div class="phone-screen" id="phoneScreen">
+        <div class="status-bar">
+          <span id="displayTime">10:00</span>
+          <div class="status-right">
+            <span id="displayEmoji">❤️✨</span>
+            <span>🔋</span>
+          </div>
         </div>
+      </div>
     </div>
-</div>
 
-<div class="header">
-    <input type="text" id="searchBox" class="search-input" placeholder="🔍 검색어..." onkeyup="render()">
-    <div class="btn-group">
-        <button class="menu-btn" onclick="addTabPrompt()">탭+</button>
-        <button class="menu-btn btn-main" onclick="openModal()">문장+</button>
-        <button class="menu-btn" onclick="exportData()">저장</button>
-        <button class="menu-btn" onclick="document.getElementById('importFile').click()">복원</button>
+    <!-- 제어 컨트롤러 -->
+    <div class="control-panel">
+      <h2>📱 화면 제어 설정</h2>
+      
+      <div class="form-group">
+        <label for="timeInput">상단 시간 변경</label>
+        <input type="text" id="timeInput" value="10:00" placeholder="예: 10:00" />
+      </div>
+
+      <div class="form-group">
+        <label for="emojiInput">이모티콘 변경</label>
+        <input type="text" id="emojiInput" value="❤️✨" placeholder="이모티콘 입력" />
+      </div>
+
+      <div class="form-group">
+        <label for="imageInput">배경/이미지 업로드</label>
+        <input type="file" id="imageInput" accept="image/*" />
+      </div>
     </div>
-    <input type="file" id="importFile" style="display:none" onchange="importData(this)">
-</div>
+  </div>
 
-<div class="container">
-    <div class="tab-bar" id="tabBar"></div>
-    <div class="macro-list" id="list"></div>
-</div>
+  <script>
+    const timeInput = document.getElementById('timeInput');
+    const emojiInput = document.getElementById('emojiInput');
+    const imageInput = document.getElementById('imageInput');
 
-<script>
-    let db = JSON.parse(localStorage.getItem('br_v10')) || { "인사": [{t:"안녕하세요, 블랙록 강노을입니다."}] };
-    let curTab = Object.keys(db)[0];
-    let editIdx = -1;
-    let rightClickedTab = "";
-    let dragTabName = ""; 
+    const displayTime = document.getElementById('displayTime');
+    const displayEmoji = document.getElementById('displayEmoji');
+    const phoneScreen = document.getElementById('phoneScreen');
 
-    function render() {
-        const list = document.getElementById('list');
-        const tabBar = document.getElementById('tabBar');
-        const search = document.getElementById('searchBox').value.toLowerCase();
-        
-        tabBar.innerHTML = Object.keys(db).map(t => 
-            `<button class="tab-btn ${t===curTab?'active':''}" 
-                draggable="true"
-                onclick="setTab('${t}')" 
-                oncontextmenu="showTabMenu(event, '${t}')"
-                ondragstart="tabDragStart(event, '${t}')"
-                ondragover="event.preventDefault()"
-                ondrop="tabDrop(event, '${t}')">${t}</button>`
-        ).join('');
-        
-        list.innerHTML = "";
-        (db[curTab] || []).forEach((item, i) => {
-            if(item.t.toLowerCase().includes(search)) {
-                const div = document.createElement('div');
-                div.className = 'macro-item';
-                div.tabIndex = 0;
-                div.draggable = true;
-                div.oncontextmenu = (e) => showItemMenu(e, i);
-                div.ondblclick = () => { copy(item.t); };
-                div.onkeydown = (e) => { if (e.key === "Delete" || e.key === "Del") delItem(i); };
+    // 시간 입력 시 실시간 적용
+    timeInput.addEventListener('input', (e) => {
+      displayTime.textContent = e.target.value || '10:00';
+    });
 
-                div.innerHTML = `<div class="num">${i+1}</div><div class="macro-content">${item.t}</div>`;
-                
-                div.addEventListener('dragstart', (e) => { 
-                    e.dataTransfer.setData('idx', i); 
-                    e.dataTransfer.setData('type', 'item');
-                    div.style.opacity = '0.4'; 
-                });
-                div.addEventListener('dragover', (e) => e.preventDefault());
-                div.addEventListener('drop', (e) => {
-                    e.stopPropagation();
-                    const type = e.dataTransfer.getData('type');
-                    if(type !== 'item') return;
+    // 이모티콘 입력 시 실시간 적용
+    emojiInput.addEventListener('input', (e) => {
+      displayEmoji.textContent = e.target.value;
+    });
 
-                    const from = e.dataTransfer.getData('idx');
-                    const target = db[curTab].splice(from, 1)[0];
-                    db[curTab].splice(i, 0, target);
-                    saveDB(); render();
-                });
-                div.addEventListener('dragend', () => render());
-                list.appendChild(div);
-            }
-        });
-    }
-
-    function tabDragStart(e, name) {
-        dragTabName = name;
-        e.dataTransfer.setData('type', 'tab');
-    }
-
-    function tabDrop(e, targetName) {
-        e.preventDefault();
-        const type = e.dataTransfer.getData('type');
-        if(type !== 'tab' || dragTabName === targetName) return;
-
-        const keys = Object.keys(db);
-        const fromIdx = keys.indexOf(dragTabName);
-        const toIdx = keys.indexOf(targetName);
-
-        keys.splice(fromIdx, 1);
-        keys.splice(toIdx, 0, dragTabName);
-
-        const newDb = {};
-        keys.forEach(k => { newDb[k] = db[k]; });
-        db = newDb;
-        
-        saveDB(); render();
-    }
-
-    function copy(t) {
-        // [수정 포인트] 줄바꿈(\n)은 유지하고 기타 제어문자만 제거하도록 변경
-        const cleanText = t.trim().replace(/[\x00-\x09\x0B-\x1F\x7F-\x9F]/g, "");
-        navigator.clipboard.writeText(cleanText).then(() => {
-            const ts = document.getElementById('toast');
-            ts.className = 'show';
-            setTimeout(() => ts.className = '', 1000);
-        });
-    }
-
-    function openModal(idx = -1) {
-        editIdx = idx;
-        const overlay = document.getElementById('modalOverlay');
-        const input = document.getElementById('modalInp');
-        overlay.style.display = 'flex';
-        input.value = (idx === -1) ? "" : db[curTab][idx].t;
-        input.focus();
-    }
-    function closeModal() { document.getElementById('modalOverlay').style.display = 'none'; }
-    function saveItem() {
-        const t = document.getElementById('modalInp').value;
-        if(!t.trim()) return;
-        if(editIdx === -1) db[curTab].push({t:t});
-        else db[curTab][editIdx].t = t;
-        saveDB(); render(); closeModal();
-    }
-
-    function showTabMenu(e, tabName) {
-        e.preventDefault(); e.stopPropagation();
-        rightClickedTab = tabName;
-        const menu = document.getElementById('contextMenu');
-        menu.innerHTML = `<div onclick="editTabPrompt()">📝 이름 수정</div><div onclick="delTabConfirm()" style="color:#ff6b6b">❌ 탭 삭제</div>`;
-        displayMenu(e);
-    }
-    function showItemMenu(e, idx) {
-        e.preventDefault(); e.stopPropagation();
-        const menu = document.getElementById('contextMenu');
-        menu.innerHTML = `<div onclick="openModal(${idx})">📝 수정</div><div onclick="delItem(${idx})" style="color:#ff6b6b">❌ 삭제</div>`;
-        displayMenu(e);
-    }
-    function displayMenu(e) {
-        const menu = document.getElementById('contextMenu');
-        menu.style.display = 'block'; menu.style.left = e.pageX + 'px'; menu.style.top = e.pageY + 'px';
-    }
-    window.onclick = () => document.getElementById('contextMenu').style.display = 'none';
-
-    function addTabPrompt() {
-        const n = prompt("새 탭 이름?");
-        if(n && !db[n]) { db[n] = []; curTab = n; saveDB(); render(); }
-    }
-    function editTabPrompt() {
-        const n = prompt("탭 이름 수정?", rightClickedTab);
-        if(n && n !== rightClickedTab && !db[n]) {
-            const newDb = {};
-            Object.keys(db).forEach(k => {
-                if(k === rightClickedTab) newDb[n] = db[k];
-                else newDb[k] = db[k];
-            });
-            db = newDb;
-            curTab = n; saveDB(); render();
-        }
-    }
-    function delTabConfirm() {
-        if(Object.keys(db).length > 1 && confirm(`삭제할까요?`)) { delete db[rightClickedTab]; curTab = Object.keys(db)[0]; saveDB(); render(); }
-    }
-    function setTab(t) { curTab = t; render(); }
-    function delItem(i) { if(confirm("삭제할까요?")) { db[curTab].splice(i, 1); saveDB(); render(); } }
-    function saveDB() { localStorage.setItem('br_v10', JSON.stringify(db)); }
-    
-    function exportData() {
-        const blob = new Blob([JSON.stringify(db)], {type: 'application/json'});
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'blackrock_v10.json'; a.click();
-    }
-    function importData(input) {
-        const file = input.files[0];
+    // 이미지 파일 선택 시 화면 배경 변경
+    imageInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
         const reader = new FileReader();
-        reader.onload = function() {
-            try {
-                const importedData = JSON.parse(reader.result);
-                if(confirm("합칠까요?")) {
-                    for(let k in importedData) { if(db[k]) db[k] = db[k].concat(importedData[k]); else db[k] = importedData[k]; }
-                    saveDB(); render();
-                }
-            } catch(e) { alert("오류"); }
+        reader.onload = function (event) {
+          phoneScreen.style.backgroundImage = `url('${event.target.result}')`;
         };
-        reader.readAsText(file);
-    }
-    render();
-</script>
+        reader.readAsDataURL(file);
+      }
+    });
+  </script>
 </body>
 </html>
