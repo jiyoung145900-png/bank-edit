@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>고품질 모바일 상단바 & 화면 커스텀 제어기</title>
+  <title>은행 거래 화면 캡처 제조기</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     * {
@@ -40,34 +40,17 @@
       position: sticky;
       top: 20px;
     }
-    .phone-wrapper {
-      background: #111;
-      border-radius: 40px;
-      padding: 12px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-      transition: all 0.3s ease;
-      position: relative;
-    }
-    .phone-wrapper.no-frame {
-      background: transparent;
-      padding: 0;
-      border-radius: 0;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    }
+
+    /* 핸드폰 화면 (프레임 없음, 라운드 코너만) */
     .phone-screen {
       background-color: #ffffff;
       overflow: hidden;
       position: relative;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
       display: flex;
       flex-direction: column;
-      border-radius: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
       transition: width 0.3s ease, height 0.3s ease;
-    }
-    .phone-wrapper.no-frame .phone-screen {
-      border-radius: 0;
     }
 
     /* 상단바 (Status Bar) */
@@ -79,116 +62,244 @@
       align-items: center;
       padding: 0 16px;
       color: #000000;
-      font-size: 14px;
-      font-weight: 700;
+      font-size: 13px;
+      font-weight: 600;
       z-index: 100;
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(5px);
+      background: #ffffff;
       user-select: none;
     }
     .status-left {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
     }
-    .carrier-text {
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: -0.3px;
-    }
-    .time-text {
-      font-size: 14px;
-      font-weight: 700;
-      margin-left: 2px;
-    }
-
     .status-right {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    /* 커스텀 아이콘 등록 목록 배치 영역 */
-    .custom-icons-container {
       display: flex;
       align-items: center;
       gap: 4px;
     }
-    .custom-status-icon {
-      height: 16px;
-      width: auto;
-      object-fit: contain;
-    }
-
-    /* 시스템 SVG 아이콘 */
     .sys-icon {
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      width: 16px;
+      height: 12px;
+    }
+    .battery-text {
+      font-size: 11px;
+      font-weight: 700;
     }
 
-    /* 갤럭시 배터리 (기본) */
-    .battery-box {
+    /* 은행 앱 콘텐츠 */
+    .content-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 국민은행 스타일 */
+    .kb-container {
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .kb-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+    .kb-title {
+      font-size: 16px;
+      color: #333;
+      font-weight: 500;
+      letter-spacing: -0.5px;
+    }
+    .kb-icons {
+      display: flex;
+      gap: 16px;
+    }
+    .kb-icon-btn {
+      font-size: 24px;
+      cursor: pointer;
+      background: transparent;
+      border: none;
+    }
+
+    .kb-main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 28px;
+    }
+
+    .kb-character-wrapper {
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
-      position: relative;
-      background: #767676;
-      color: #ffffff;
-      border-radius: 10px;
-      padding: 2px 7px;
-      font-size: 11px;
-      font-weight: 800;
-      min-width: 32px;
-      height: 18px;
-      line-height: 1;
-    }
-    .battery-box::after {
-      content: '';
-      position: absolute;
-      right: -3px;
-      top: 5px;
-      width: 2px;
-      height: 8px;
-      background: #767676;
-      border-radius: 0 2px 2px 0;
+      margin-bottom: 20px;
     }
 
-    /* 아이폰 배터리 */
-    .battery-box.iphone-style {
-      background: transparent;
-      color: currentColor;
-      border: 1.5px solid currentColor;
-      border-radius: 3px;
-      padding: 1px 3px;
-      min-width: 24px;
-      height: 11px;
-      font-size: 9px;
-      font-weight: 700;
-    }
-    .battery-box.iphone-style::after {
-      display: none;
-    }
-
-    /* 하단 내비게이션 바 (안드로이드) */
-    .nav-bar {
-      height: 40px;
-      width: 100%;
+    .kb-character {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #9b8577 0%, #c7a882 100%);
       display: flex;
-      justify-content: space-around;
       align-items: center;
-      margin-top: auto;
-      padding-bottom: 5px;
-      z-index: 90;
-      background: rgba(255, 255, 255, 0.9);
-    }
-    .nav-btn {
-      width: 18px;
-      height: 18px;
-      opacity: 0.6;
+      justify-content: center;
+      font-size: 60px;
     }
 
-    /* 컨트롤 패널 UI */
+    .kb-badge {
+      width: 44px;
+      height: 44px;
+      background: #ffc107;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 700;
+      color: white;
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      border: 3px solid white;
+    }
+
+    .kb-recipient {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1a1a1a;
+      text-align: center;
+      margin-bottom: 4px;
+      letter-spacing: -0.3px;
+    }
+
+    .kb-amount {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1a1a1a;
+      text-align: center;
+      margin-bottom: 4px;
+      letter-spacing: -0.5px;
+    }
+
+    .kb-status {
+      font-size: 14px;
+      color: #888;
+      text-align: center;
+      letter-spacing: -0.3px;
+    }
+
+    .kb-account-number-box {
+      background: #f5f5f5;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .kb-account-number-text {
+      font-size: 13px;
+      color: #333;
+      font-weight: 500;
+      letter-spacing: -0.2px;
+    }
+
+    .kb-account-number-star {
+      font-size: 18px;
+      color: #ccc;
+      cursor: pointer;
+    }
+
+    .kb-account-box {
+      background: transparent;
+      border-radius: 0;
+      padding: 0;
+      margin-bottom: 20px;
+    }
+
+    .kb-account-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      font-size: 13px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .kb-account-row:last-child {
+      border-bottom: none;
+    }
+    .kb-account-label {
+      color: #666;
+      font-weight: 500;
+      letter-spacing: -0.2px;
+    }
+    .kb-account-value {
+      color: #1a1a1a;
+      font-weight: 500;
+      text-align: right;
+      letter-spacing: -0.2px;
+    }
+
+    .kb-buttons {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .kb-btn {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      background: #ffffff;
+      color: #333;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      letter-spacing: -0.3px;
+    }
+
+    .kb-warning {
+      background: #f5f5f5;
+      border-left: 3px solid #666;
+      padding: 12px 14px;
+      margin-bottom: 20px;
+      border-radius: 4px;
+      font-size: 12px;
+      color: #666;
+      line-height: 1.6;
+      letter-spacing: -0.3px;
+    }
+
+    .kb-warning-icon {
+      font-size: 14px;
+      margin-right: 8px;
+    }
+
+    .kb-confirm-btn {
+      width: 100%;
+      padding: 14px;
+      background: #ffc107;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #333;
+      cursor: pointer;
+      letter-spacing: -0.4px;
+    }
+
+    /* 컨트롤 패널 */
     .control-panel {
       background: #ffffff;
       border-radius: 20px;
@@ -206,29 +317,22 @@
       padding-bottom: 10px;
     }
     .section-title {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
       color: #007aff;
-      margin: 18px 0 10px 0;
+      margin: 16px 0 10px 0;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
     .form-group {
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
     .form-group label {
       display: block;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
-      color: #444;
+      color: #555;
       margin-bottom: 5px;
-    }
-    .form-row {
-      display: flex;
-      gap: 10px;
-    }
-    .form-row .form-group {
-      flex: 1;
     }
     input[type="text"], input[type="number"], select {
       width: 100%;
@@ -238,520 +342,370 @@
       font-size: 13px;
       outline: none;
       transition: all 0.2s;
+      font-family: inherit;
     }
     input[type="text"]:focus, select:focus {
       border-color: #007aff;
       box-shadow: 0 0 0 3px rgba(0,122,255,0.1);
     }
-    input[type="file"] {
-      font-size: 12px;
+
+    .form-row {
+      display: flex;
+      gap: 10px;
+    }
+    .form-row .form-group {
+      flex: 1;
+      margin-bottom: 12px;
     }
 
-    /* 등록된 아이콘 관리 박스 */
-    .icon-manager {
-      background: #f8f9fa;
-      border: 1px solid #e9ecef;
-      border-radius: 10px;
-      padding: 12px;
-      margin-top: 8px;
-    }
-    .registered-icon-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: #fff;
-      padding: 6px 10px;
-      border-radius: 6px;
-      margin-bottom: 6px;
-      border: 1px solid #eee;
-    }
-    .icon-info {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 13px;
-    }
-    .icon-info img {
-      height: 20px;
-      width: 20px;
-      object-fit: contain;
-    }
     .btn {
       background: #007aff;
       color: #fff;
       border: none;
-      padding: 8px 14px;
+      padding: 10px 16px;
       border-radius: 8px;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 600;
       cursor: pointer;
       transition: background 0.2s;
+      width: 100%;
     }
     .btn:hover { background: #0056b3; }
-    .btn-danger { background: #ff3b30; }
-    .btn-danger:hover { background: #d32f2f; }
-    .btn-sm { padding: 4px 8px; font-size: 11px; }
+
     .btn-download {
       background: #34C759;
-      width: 100%;
-      margin-top: 10px;
+      margin-top: 15px;
       padding: 12px;
-      font-size: 13px;
+      font-size: 14px;
     }
     .btn-download:hover { background: #30B050; }
 
-    .color-picker-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .color-picker-group input[type="color"] {
-      border: none;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      cursor: pointer;
-    }
-
     .download-info {
       font-size: 11px;
-      color: #666;
-      margin-top: 5px;
+      color: #999;
       text-align: center;
+      margin-top: 8px;
+    }
+
+    .note-box {
+      background: #fffacd;
+      border-left: 3px solid #ffc107;
+      padding: 10px 12px;
+      border-radius: 4px;
+      font-size: 11px;
+      color: #666;
+      margin-top: 10px;
+      line-height: 1.4;
     }
   </style>
 </head>
 <body>
 
   <div class="main-container">
-    <!-- 왼쪽 핸드폰 실시간 미리보기 -->
+    <!-- 왼쪽 화면 프리뷰 -->
     <div class="preview-section">
-      <div class="phone-wrapper" id="phoneWrapper">
-        <div class="phone-screen" id="phoneScreen" style="width: 360px; height: 780px;">
-          
-          <!-- 상단바 (Status Bar) -->
-          <div class="status-bar" id="statusBar">
-            <div class="status-left">
-              <span class="carrier-text" id="displayCarrier">U⁺</span>
-              <span class="time-text" id="displayTime">12:17</span>
-            </div>
+      <div class="phone-screen" id="phoneScreen" style="width: 360px; height: 780px;">
+        
+        <!-- 상단바 -->
+        <div class="status-bar">
+          <div class="status-left">
+            <span id="timeDisplay">2:28</span>
+          </div>
+          <div class="status-right">
+            <span class="sys-icon">📶</span>
+            <span class="sys-icon">📡</span>
+            <span class="battery-text" id="batteryDisplay">74</span>
+            <span class="sys-icon">🔋</span>
+          </div>
+        </div>
 
-            <div class="status-right">
-              <!-- 사용자가 등록하고 선택한 아이콘들이 들어가는 위치 -->
-              <div class="custom-icons-container" id="activeCustomIcons"></div>
-
-              <!-- 기본 시스템 아이콘 (진동/LTE/안테나) -->
-              <span class="sys-icon" id="iconVibrate">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M0 15h2V9H0v6zm3 2h2V7H3v10zm18-10v10h2V7h-2zm-3 12h2V5h-2v14zM7 19h10V5H7v14z"/>
-                </svg>
-              </span>
-              <span class="sys-icon" id="iconLte">
-                <svg width="22" height="13" viewBox="0 0 30 16" fill="currentColor">
-                  <text x="0" y="13" font-size="12" font-weight="900" font-family="sans-serif">LTE</text>
-                </svg>
-              </span>
-              <span class="sys-icon" id="iconSignal">
-                <svg width="16" height="14" viewBox="0 0 20 16" fill="currentColor">
-                  <rect x="1" y="12" width="3" height="4" rx="0.5"/>
-                  <rect x="6" y="8" width="3" height="8" rx="0.5"/>
-                  <rect x="11" y="4" width="3" height="12" rx="0.5"/>
-                  <rect x="16" y="0" width="3" height="16" rx="0.5"/>
-                </svg>
-              </span>
-
-              <!-- 실제 배터리 (기기별 스타일 변함) -->
-              <div class="battery-box" id="batteryBox">
-                <span id="displayBattery">81</span>
+        <!-- 콘텐츠 영역 -->
+        <div class="content-area">
+          <div class="kb-container">
+            
+            <div class="kb-header">
+              <div class="kb-title">이체</div>
+              <div class="kb-icons">
+                <div class="kb-icon-btn">⏠</div>
+                <div class="kb-icon-btn">☰</div>
               </div>
             </div>
-          </div>
 
-          <!-- 하단 내비게이션 바 -->
-          <div class="nav-bar" id="navBar">
-            <svg class="nav-btn" viewBox="0 0 24 24" fill="currentColor"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
-            <svg class="nav-btn" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2" fill="none"/></svg>
-            <svg class="nav-btn" viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg>
-          </div>
+            <div class="kb-main">
+              <div class="kb-character-wrapper">
+                <div class="kb-character">🐻</div>
+                <div class="kb-badge">W</div>
+              </div>
+              <div class="kb-recipient" id="recipientName">차상훈 님께</div>
+              <div class="kb-amount" id="amountDisplay">30,000 원</div>
+              <div class="kb-status" id="statusDisplay">이체가 완료되었습니다.</div>
+            </div>
 
+            <div class="kb-account-number-box">
+              <span class="kb-account-number-text" id="recipientAccountDisplay">케이뱅크 100215386552</span>
+              <span class="kb-account-number-star">⭐</span>
+            </div>
+
+            <div class="kb-account-box">
+              <div class="kb-account-row">
+                <span class="kb-account-label">받는 분</span>
+                <span class="kb-account-value" id="recipientNameAlt">차상훈</span>
+              </div>
+              <div class="kb-account-row">
+                <span class="kb-account-label">받는 계좌</span>
+                <span class="kb-account-value" id="recipientAccountAlt">케이뱅크 100215386552</span>
+              </div>
+              <div class="kb-account-row">
+                <span class="kb-account-label">이체금액</span>
+                <span class="kb-account-value" id="amountAlt">420,000원</span>
+              </div>
+              <div class="kb-account-row">
+                <span class="kb-account-label">출금계좌</span>
+                <span class="kb-account-value" id="senderAccountDisplay">우체국 300566020203310</span>
+              </div>
+              <div class="kb-account-row">
+                <span class="kb-account-label">수수료</span>
+                <span class="kb-account-value" id="feeDisplay">면제</span>
+              </div>
+              <div class="kb-account-row">
+                <span class="kb-account-label">내 통장표기</span>
+                <span class="kb-account-value" id="noteMemoDisplay">차상훈</span>
+              </div>
+              <div class="kb-account-row">
+                <span class="kb-account-label">받는 분 통장표기</span>
+                <span class="kb-account-value" id="recipientMemoDisplay">김용</span>
+              </div>
+            </div>
+
+            <div class="kb-buttons">
+              <button class="kb-btn">추가이체</button>
+              <button class="kb-btn">거래내역조회</button>
+            </div>
+
+            <div class="kb-warning">
+              <span class="kb-warning-icon">ℹ️</span>
+              다른 은행 계좌로 이체 시 입금 은행의 사정에 따라 해당 계좌의 입금 은행의 사정에 따라 지연될 수 있습니다.
+            </div>
+
+          </div>
         </div>
+
+        <button class="kb-confirm-btn">확인</button>
+
       </div>
 
-      <!-- JPG 다운로드 버튼 -->
-      <button class="btn btn-download" id="btnDownloadJpg">📥 화면 이미지 JPG 다운로드</button>
-      <div class="download-info">프레임 제외 화면 영역만 저장됩니다</div>
+      <!-- 다운로드 버튼 -->
+      <button class="btn btn-download" id="btnDownload">📥 JPG 다운로드</button>
+      <div class="download-info">직사각형 캡처 이미지로 저장됩니다</div>
     </div>
 
-    <!-- 오른쪽 상세 제어 컨트롤 패널 -->
+    <!-- 오른쪽 편집 패널 -->
     <div class="control-panel">
-      <h2>⚙️ 모바일 화면 커스텀 설정</h2>
+      <h2>📱 거래내역 편집</h2>
 
-      <!-- 1. 기종 및 화면 크기 설정 -->
-      <div class="section-title">1. 화면 크기 & 프레임 설정</div>
+      <!-- 기기 선택 -->
+      <div class="section-title">기기 & 크기</div>
       <div class="form-group">
-        <label for="devicePreset">기종 / 사이즈 프리셋 선택</label>
-        <select id="devicePreset">
-          <option value="custom-screenshot">캡처 이미지 비율 (360 x 780)</option>
-          <option value="galaxy-s24">삼성 갤럭시 S24 (360 x 780)</option>
-          <option value="galaxy-ultra">삼성 갤럭시 S24 Ultra (384 x 854)</option>
-          <option value="iphone-15">아이폰 15 Pro (393 x 852)</option>
-          <option value="custom">직접 수동 입력</option>
+        <label for="deviceSelect">기종 선택</label>
+        <select id="deviceSelect">
+          <option value="360-780">일반 안드로이드 (360 x 780)</option>
+          <option value="375-812">아이폰 13 (375 x 812)</option>
+          <option value="390-844">픽셀 6 (390 x 844)</option>
         </select>
       </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label for="screenWidth">가로 너비 (px)</label>
-          <input type="number" id="screenWidth" value="360" />
-        </div>
-        <div class="form-group">
-          <label for="screenHeight">세로 높이 (px)</label>
-          <input type="number" id="screenHeight" value="780" />
-        </div>
-      </div>
-
+      <!-- 은행 선택 (나중에 확장) -->
+      <div class="section-title">은행 선택</div>
       <div class="form-group">
-        <label><input type="checkbox" id="toggleFrame" checked /> 외각 스마트폰 프레임 표시</label>
+        <label for="bankSelect">은행</label>
+        <select id="bankSelect">
+          <option value="kb">국민은행 ✓</option>
+          <option value="shinhan" disabled>신한은행 (준비중)</option>
+          <option value="woori" disabled>우리은행 (준비중)</option>
+          <option value="ibk" disabled>기업은행 (준비중)</option>
+        </select>
       </div>
 
-      <!-- 2. 통신사 및 시간 설정 -->
-      <div class="section-title">2. 통신사 & 시계 설정</div>
+      <!-- 시간 & 배터리 -->
+      <div class="section-title">상단바</div>
       <div class="form-row">
         <div class="form-group">
-          <label for="carrierSelect">통신사 선택</label>
-          <select id="carrierSelect">
-            <option value="U⁺">U⁺ (유플러스)</option>
-            <option value="SKT">SKT</option>
-            <option value="kt">kt (알뜰폰/올레)</option>
-            <option value="custom">직접 입력</option>
-            <option value="">표시 안 함</option>
-          </select>
+          <label for="timeInput">시간</label>
+          <input type="text" id="timeInput" value="2:28" placeholder="H:MM" />
         </div>
         <div class="form-group">
-          <label for="customCarrierInput">통신사 수동 입력</label>
-          <input type="text" id="customCarrierInput" placeholder="예: KT" disabled />
+          <label for="batteryInput">배터리</label>
+          <input type="number" id="batteryInput" value="74" min="0" max="100" />
         </div>
       </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label for="timeInput">상단바 시간</label>
-          <input type="text" id="timeInput" value="12:17" />
-        </div>
-        <div class="form-group">
-          <label for="batteryInput">배터리 잔량 (%)</label>
-          <input type="number" id="batteryInput" value="81" min="0" max="100" />
-        </div>
-      </div>
-
-      <!-- 3. 상단바 스타일 & 시스템 아이콘 토글 -->
-      <div class="section-title">3. 상단바 텍스트/아이콘 색상</div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>상단바 글자/아이콘 색상</label>
-          <div class="color-picker-group">
-            <input type="color" id="statusColor" value="#000000" />
-            <span id="colorHexText">#000000</span>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>상단바 배경 투명도/색상</label>
-          <div class="color-picker-group">
-            <input type="color" id="statusBgColor" value="#ffffff" />
-          </div>
-        </div>
-      </div>
-
+      <!-- 받는 분 정보 -->
+      <div class="section-title">받는 분 정보</div>
       <div class="form-group">
-        <label style="margin-bottom: 8px;">기본 시스템 아이콘 토글</label>
-        <div style="display: flex; gap: 15px; font-size: 13px;">
-          <label><input type="checkbox" id="toggleVibrate" checked /> 진동</label>
-          <label><input type="checkbox" id="toggleLte" checked /> LTE</label>
-          <label><input type="checkbox" id="toggleSignal" checked /> 안테나</label>
-          <label><input type="checkbox" id="toggleNav" checked /> 하단바</label>
-        </div>
+        <label for="recipientInput">받는 분 이름</label>
+        <input type="text" id="recipientInput" value="차상훈" />
       </div>
-
-      <!-- 4. 커스텀 아이콘 등록 및 관리 -->
-      <div class="section-title">4. 나만의 아이콘 등록 및 배치</div>
       <div class="form-group">
-        <label for="iconFileInput">아이콘 이미지 파일 추가 (PC에서 선택)</label>
-        <input type="file" id="iconFileInput" accept="image/*" />
+        <label for="recipientAccountInput">받는 계좌 (은행명 계좌번호)</label>
+        <input type="text" id="recipientAccountInput" value="케이뱅크 100215386552" />
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="iconNameInput">아이콘 이름/식별자</label>
-          <input type="text" id="iconNameInput" placeholder="예: 카톡, 알림 등" />
-        </div>
-        <div class="form-group" style="display: flex; align-items: flex-end;">
-          <button class="btn" id="btnAddIcon" style="width: 100%;">아이콘 라이브러리 등록</button>
-        </div>
-      </div>
-
-      <div class="icon-manager">
-        <label style="font-size: 12px; font-weight:700; color:#666; margin-bottom:8px; display:block;">
-          등록된 아이콘 목록 (체크박스로 상단바에 표시/해제)
-        </label>
-        <div id="iconListContainer">
-          <div style="font-size: 12px; color: #999; text-align: center; padding: 10px;">
-            등록된 커스텀 아이콘이 없습니다.
-          </div>
-        </div>
-      </div>
-
-      <!-- 5. 배경 및 캡처 이미지 업로드 -->
-      <div class="section-title">5. 화면 전체 배경 / 캡처 이미지</div>
       <div class="form-group">
-        <label for="bgFileInput">배경 / 거래내역 캡처 이미지 업로드</label>
-        <input type="file" id="bgFileInput" accept="image/*" />
+        <label for="recipientMemoInput">받는 분 통장표기</label>
+        <input type="text" id="recipientMemoInput" value="김용" />
+      </div>
+
+      <!-- 이체 금액 -->
+      <div class="section-title">이체 정보</div>
+      <div class="form-group">
+        <label for="amountInput">이체 금액 (숫자만 입력, 쉼표 자동)</label>
+        <input type="number" id="amountInput" value="420000" />
+      </div>
+      <div class="form-group">
+        <label for="amountMainInput">메인 표시 금액 (숫자만)</label>
+        <input type="number" id="amountMainInput" value="30000" />
+      </div>
+
+      <!-- 출금 계좌 -->
+      <div class="section-title">출금 계좌</div>
+      <div class="form-group">
+        <label for="senderAccountInput">출금계좌 (은행명 계좌번호)</label>
+        <input type="text" id="senderAccountInput" value="우체국 300566020203310" />
+      </div>
+      <div class="form-group">
+        <label for="senderMemoInput">내 통장표기</label>
+        <input type="text" id="senderMemoInput" value="차상훈" />
+      </div>
+
+      <!-- 기타 -->
+      <div class="section-title">기타</div>
+      <div class="form-group">
+        <label for="feeInput">수수료</label>
+        <input type="text" id="feeInput" value="면제" />
+      </div>
+      <div class="form-group">
+        <label for="statusInput">상태 메시지</label>
+        <input type="text" id="statusInput" value="이체가 완료되었습니다." />
+      </div>
+
+      <div class="note-box">
+        💡 <strong>팁:</strong> 입력 필드를 수정하면 왼쪽 미리보기가 실시간으로 업데이트됩니다!
       </div>
 
     </div>
   </div>
 
   <script>
-    // 1. DOM 엘리먼트 가져오기
-    const phoneWrapper = document.getElementById('phoneWrapper');
+    // DOM 요소
     const phoneScreen = document.getElementById('phoneScreen');
-    const statusBar = document.getElementById('statusBar');
-    const displayCarrier = document.getElementById('displayCarrier');
-    const displayTime = document.getElementById('displayTime');
-    const displayBattery = document.getElementById('displayBattery');
-    const batteryBox = document.getElementById('batteryBox');
-    const navBar = document.getElementById('navBar');
-
-    const devicePreset = document.getElementById('devicePreset');
-    const screenWidth = document.getElementById('screenWidth');
-    const screenHeight = document.getElementById('screenHeight');
-    const toggleFrame = document.getElementById('toggleFrame');
-
-    const carrierSelect = document.getElementById('carrierSelect');
-    const customCarrierInput = document.getElementById('customCarrierInput');
+    const deviceSelect = document.getElementById('deviceSelect');
+    
     const timeInput = document.getElementById('timeInput');
     const batteryInput = document.getElementById('batteryInput');
+    const timeDisplay = document.getElementById('timeDisplay');
+    const batteryDisplay = document.getElementById('batteryDisplay');
 
-    const statusColor = document.getElementById('statusColor');
-    const colorHexText = document.getElementById('colorHexText');
-    const statusBgColor = document.getElementById('statusBgColor');
+    const recipientInput = document.getElementById('recipientInput');
+    const recipientName = document.getElementById('recipientName');
+    const recipientNameAlt = document.getElementById('recipientNameAlt');
 
-    const toggleVibrate = document.getElementById('toggleVibrate');
-    const toggleLte = document.getElementById('toggleLte');
-    const toggleSignal = document.getElementById('toggleSignal');
-    const toggleNav = document.getElementById('toggleNav');
+    const recipientAccountInput = document.getElementById('recipientAccountInput');
+    const recipientAccountDisplay = document.getElementById('recipientAccountDisplay');
 
-    const iconVibrate = document.getElementById('iconVibrate');
-    const iconLte = document.getElementById('iconLte');
-    const iconSignal = document.getElementById('iconSignal');
-    
-    const iconFileInput = document.getElementById('iconFileInput');
-    const iconNameInput = document.getElementById('iconNameInput');
-    const btnAddIcon = document.getElementById('btnAddIcon');
-    const iconListContainer = document.getElementById('iconListContainer');
-    const activeCustomIcons = document.getElementById('activeCustomIcons');
+    const recipientMemoInput = document.getElementById('recipientMemoInput');
+    const recipientMemoDisplay = document.getElementById('recipientMemoDisplay');
 
-    const bgFileInput = document.getElementById('bgFileInput');
-    const btnDownloadJpg = document.getElementById('btnDownloadJpg');
+    const amountInput = document.getElementById('amountInput');
+    const amountMainInput = document.getElementById('amountMainInput');
+    const amountDisplay = document.getElementById('amountDisplay');
+    const amountAlt = document.getElementById('amountAlt');
 
-    // 2. 상태(State) 변수 관리
-    let customIcons = [];
+    const senderAccountInput = document.getElementById('senderAccountInput');
+    const senderAccountDisplay = document.getElementById('senderAccountDisplay');
 
-    // 3. 화면 크기 및 프레임 업데이트 로직
-    function updateScreenSize() {
-      phoneScreen.style.width = screenWidth.value + 'px';
-      phoneScreen.style.height = screenHeight.value + 'px';
+    const senderMemoInput = document.getElementById('senderMemoInput');
+    const noteMemoDisplay = document.getElementById('noteMemoDisplay');
+
+    const feeInput = document.getElementById('feeInput');
+    const feeDisplay = document.getElementById('feeDisplay');
+
+    const statusInput = document.getElementById('statusInput');
+    const statusDisplay = document.getElementById('statusDisplay');
+
+    const btnDownload = document.getElementById('btnDownload');
+
+    // 기기 크기 변경
+    deviceSelect.addEventListener('change', (e) => {
+      const [width, height] = e.target.value.split('-');
+      phoneScreen.style.width = width + 'px';
+      phoneScreen.style.height = height + 'px';
+    });
+
+    // 실시간 업데이트 함수
+    function updateDisplay() {
+      timeDisplay.textContent = timeInput.value || '0:00';
+      batteryDisplay.textContent = batteryInput.value || '0';
+      
+      recipientName.textContent = recipientInput.value + ' 님께';
+      recipientNameAlt.textContent = recipientInput.value;
+      
+      recipientAccountDisplay.textContent = recipientAccountInput.value;
+      recipientMemoDisplay.textContent = recipientMemoInput.value;
+      
+      const amountMain = parseInt(amountMainInput.value) || 0;
+      amountDisplay.textContent = amountMain.toLocaleString() + ' 원';
+      
+      const amount = parseInt(amountInput.value) || 0;
+      amountAlt.textContent = amount.toLocaleString() + '원';
+      
+      senderAccountDisplay.textContent = senderAccountInput.value;
+      noteMemoDisplay.textContent = senderMemoInput.value;
+      
+      feeDisplay.textContent = feeInput.value;
+      statusDisplay.textContent = statusInput.value;
     }
 
-    screenWidth.addEventListener('input', updateScreenSize);
-    screenHeight.addEventListener('input', updateScreenSize);
+    // 모든 입력 필드에 이벤트 리스너 추가
+    [timeInput, batteryInput, recipientInput, recipientAccountInput, recipientMemoInput,
+     amountInput, amountMainInput, senderAccountInput, senderMemoInput, feeInput, statusInput]
+      .forEach(input => input.addEventListener('input', updateDisplay));
 
-    devicePreset.addEventListener('change', (e) => {
-      const val = e.target.value;
-      if (val === 'galaxy-s24' || val === 'custom-screenshot') {
-        screenWidth.value = 360; 
-        screenHeight.value = 780;
-      } else if (val === 'galaxy-ultra') {
-        screenWidth.value = 384; 
-        screenHeight.value = 854;
-      } else if (val === 'iphone-15') {
-        screenWidth.value = 393; 
-        screenHeight.value = 852;
-      }
-      updateScreenSize();
-    });
+    // JPG 다운로드
+    btnDownload.addEventListener('click', async () => {
+      btnDownload.disabled = true;
+      btnDownload.textContent = '📥 변환 중...';
 
-    toggleFrame.addEventListener('change', (e) => {
-      if (e.target.checked) {
-        phoneWrapper.classList.remove('no-frame');
-      } else {
-        phoneWrapper.classList.add('no-frame');
-      }
-    });
-
-    // 4. 통신사, 시간, 배터리 업데이트 로직
-    carrierSelect.addEventListener('change', (e) => {
-      const val = e.target.value;
-      if (val === 'custom') {
-        customCarrierInput.disabled = false;
-        displayCarrier.textContent = customCarrierInput.value;
-      } else {
-        customCarrierInput.disabled = true;
-        displayCarrier.textContent = val;
-      }
-    });
-
-    customCarrierInput.addEventListener('input', (e) => {
-      if (carrierSelect.value === 'custom') {
-        displayCarrier.textContent = e.target.value;
-      }
-    });
-
-    timeInput.addEventListener('input', (e) => {
-      displayTime.textContent = e.target.value;
-    });
-
-    batteryInput.addEventListener('input', (e) => {
-      displayBattery.textContent = e.target.value;
-    });
-
-    // 5. 색상 및 시스템 아이콘 토글 로직
-    statusColor.addEventListener('input', (e) => {
-      const color = e.target.value;
-      statusBar.style.color = color;
-      colorHexText.textContent = color;
-    });
-
-    statusBgColor.addEventListener('input', (e) => {
-      statusBar.style.background = e.target.value;
-    });
-
-    toggleVibrate.addEventListener('change', (e) => {
-      iconVibrate.style.display = e.target.checked ? 'inline-flex' : 'none';
-    });
-
-    toggleLte.addEventListener('change', (e) => {
-      iconLte.style.display = e.target.checked ? 'inline-flex' : 'none';
-    });
-
-    toggleSignal.addEventListener('change', (e) => {
-      iconSignal.style.display = e.target.checked ? 'inline-flex' : 'none';
-    });
-
-    toggleNav.addEventListener('change', (e) => {
-      navBar.style.display = e.target.checked ? 'flex' : 'none';
-    });
-
-    // 6. 나만의 커스텀 아이콘 등록/관리 로직
-    btnAddIcon.addEventListener('click', () => {
-      const file = iconFileInput.files[0];
-      const name = iconNameInput.value.trim() || '이름 없음';
-
-      if (!file) {
-        alert('이미지 파일을 선택해주세요.');
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const id = 'icon_' + Date.now();
-        customIcons.push({
-          id: id,
-          name: name,
-          src: e.target.result,
-          active: false
+      try {
+        const canvas = await html2canvas(phoneScreen, {
+          backgroundColor: '#ffffff',
+          scale: 2,
+          logging: false,
+          useCORS: true
         });
-        renderIconList();
+
+        const link = document.createElement('a');
+        link.href = canvas.toDataURL('image/jpeg', 0.95);
         
-        // 입력 필드 초기화
-        iconFileInput.value = '';
-        iconNameInput.value = '';
-      };
-      reader.readAsDataURL(file);
-    });
-
-    function renderIconList() {
-      if (customIcons.length === 0) {
-        iconListContainer.innerHTML = '<div style="font-size: 12px; color: #999; text-align: center; padding: 10px;">등록된 커스텀 아이콘이 없습니다.</div>';
-        return;
-      }
-      
-      iconListContainer.innerHTML = '';
-      
-      customIcons.forEach(icon => {
-        const itemDiv = document.createElement('div');
-        itemDiv.className = 'registered-icon-item';
+        const now = new Date();
+        const timestamp = now.getFullYear() + 
+                         String(now.getMonth() + 1).padStart(2, '0') +
+                         String(now.getDate()).padStart(2, '0') + '_' +
+                         String(now.getHours()).padStart(2, '0') +
+                         String(now.getMinutes()).padStart(2, '0');
         
-        itemDiv.innerHTML = `
-          <div class="icon-info">
-            <input type="checkbox" id="chk_${icon.id}" ${icon.active ? 'checked' : ''}>
-            <img src="${icon.src}" alt="${icon.name}">
-            <label for="chk_${icon.id}">${icon.name}</label>
-          </div>
-          <button class="btn btn-danger btn-sm" data-id="${icon.id}">삭제</button>
-        `;
+        link.download = `KB거래내역_${timestamp}.jpg`;
+        link.click();
 
-        // 체크박스 변경 시 상태 업데이트
-        const checkbox = itemDiv.querySelector('input[type="checkbox"]');
-        checkbox.addEventListener('change', (e) => {
-          icon.active = e.target.checked;
-          renderActiveIcons();
-        });
-
-        // 삭제 버튼 클릭 시 리스트에서 제거
-        const delBtn = itemDiv.querySelector('button');
-        delBtn.addEventListener('click', (e) => {
-          const targetId = e.target.getAttribute('data-id');
-          customIcons = customIcons.filter(c => c.id !== targetId);
-          renderIconList();
-          renderActiveIcons();
-        });
-
-        iconListContainer.appendChild(itemDiv);
-      });
-    }
-
-    function renderActiveIcons() {
-      activeCustomIcons.innerHTML = '';
-      
-      const activeList = customIcons.filter(icon => icon.active);
-      activeList.forEach(icon => {
-        const img = document.createElement('img');
-        img.src = icon.src;
-        img.className = 'custom-status-icon';
-        img.alt = icon.name;
-        activeCustomIcons.appendChild(img);
-      });
-    }
-
-    // 7. 전체 배경 이미지 처리
-    bgFileInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        phoneScreen.style.backgroundImage = `url(${event.target.result})`;
-      };
-      reader.readAsDataURL(file);
+      } catch (error) {
+        console.error('다운로드 오류:', error);
+        alert('이미지 저장 중 오류가 발생했습니다.');
+      } finally {
+        btnDownload.disabled = false;
+        btnDownload.textContent = '📥 JPG 다운로드';
+      }
     });
 
-    // 8. JPG 캡처 다운로드 (html2canvas 활용)
-    btnDownloadJpg.addEventListener('click', () => {
-      // 폰 프레임 제외한 phoneScreen 내부 영역만 캡처
-      html2canvas(phoneScreen, { 
-        scale: 2, // 고해상도 처리
-        useCORS: true,
-        backgroundColor: null 
-      }).then(canvas => {
-        const imgUrl = canvas.toDataURL('image/jpeg', 1.0);
-        const downloadLink = document.createElement('a');
-        downloadLink.href = imgUrl;
-        downloadLink.download = 'custom_mobile_screen.jpg';
-        downloadLink.click();
-      }).catch(err => {
-        alert('이미지 생성 중 오류가 발생했습니다: ' + err.message);
-      });
-    });
-
+    // 초기 업데이트
+    updateDisplay();
   </script>
 </body>
 </html>
