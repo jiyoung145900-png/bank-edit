@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>은행 거래 화면 캡처 제조기</title>
+  <title>모바일 은행 이체 완료 화면 생성기</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     * {
@@ -27,11 +27,11 @@
       gap: 30px;
       justify-content: center;
       align-items: flex-start;
-      max-width: 1200px;
+      max-width: 1100px;
       width: 100%;
     }
 
-    /* 프리뷰 영역 */
+    /* 프리뷰 영역 - 라운드 완전 제거 (직사각형) */
     .preview-section {
       display: flex;
       flex-direction: column;
@@ -40,219 +40,217 @@
       position: sticky;
       top: 20px;
     }
-
-    /* 핸드폰 화면 (프레임 없음, 라운드 코너만) */
+    .phone-wrapper {
+      background: transparent;
+      padding: 0;
+      border-radius: 0; /* 테두리 라운드 제거 */
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
     .phone-screen {
       background-color: #ffffff;
       overflow: hidden;
       position: relative;
       display: flex;
       flex-direction: column;
-      border-radius: 20px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-      transition: width 0.3s ease, height 0.3s ease;
+      border-radius: 0 !important; /* 화면 직사각형 유지 */
+      transition: width 0.2s, height 0.2s;
     }
 
-    /* 상단바 (Status Bar) */
-    .status-bar {
-      height: 38px;
+    /* ========================================================= */
+    /* 국민은행 (KB) 이체완료 화면 스타일                       */
+    /* ========================================================= */
+    .kb-container {
       width: 100%;
+      height: 100%;
+      background-color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      user-select: none;
+    }
+    /* 상단 헤더 */
+    .kb-header {
+      height: 52px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0 16px;
-      color: #000000;
-      font-size: 13px;
+      padding: 0 20px;
+    }
+    .kb-header .title {
+      font-size: 18px;
       font-weight: 600;
-      z-index: 100;
+      color: #111;
+    }
+    .kb-header .icons {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      color: #222;
+    }
+
+    /* 메인 콘텐츠 */
+    .kb-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px 24px 20px;
+      text-align: center;
+    }
+    
+    /* 캐릭터 graphic */
+    .kb-character {
+      width: 110px;
+      height: 110px;
+      margin-top: 5px;
+      margin-bottom: 15px;
+    }
+
+    .kb-name-text {
+      font-size: 22px;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 6px;
+    }
+    .kb-amount-text {
+      font-size: 28px;
+      font-weight: 800;
+      color: #111;
+      margin-bottom: 6px;
+    }
+    .kb-complete-text {
+      font-size: 18px;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 24px;
+    }
+
+    /* 계좌 캡슐 */
+    .kb-account-box {
+      border: 1px solid #dcdcdc;
+      background-color: #ffffff;
+      border-radius: 22px;
+      padding: 10px 18px;
+      font-size: 14px;
+      color: #555;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 22px;
+    }
+    .kb-star-icon {
+      color: #888;
+      font-size: 15px;
+    }
+
+    /* 메시지카드 | 공유하기 */
+    .kb-action-links {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 14px;
+      color: #444;
+      font-weight: 500;
+      margin-bottom: 30px;
+    }
+    .kb-action-links span {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+    }
+    .kb-action-divider {
+      color: #e0e0e0;
+      font-weight: 300;
+    }
+
+    /* 상세정보 구분선 */
+    .kb-detail-toggle {
+      width: 100%;
+      border-top: 1px solid #f2f2f2;
+      padding-top: 16px;
+      font-size: 13px;
+      color: #777;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 20px;
+    }
+
+    /* 서브 버튼 2개 */
+    .kb-btn-row {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+    .kb-btn-sub {
+      flex: 1;
+      padding: 14px 0;
+      border: 1px solid #777777;
       background: #ffffff;
-      user-select: none;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      text-align: center;
     }
-    .status-left {
+
+    /* 안내문 */
+    .kb-notice {
       display: flex;
-      align-items: center;
-      gap: 4px;
+      align-items: flex-start;
+      gap: 6px;
+      font-size: 11px;
+      color: #888;
+      line-height: 1.45;
+      text-align: left;
+      width: 100%;
+      margin-top: auto;
+      padding-bottom: 15px;
     }
-    .status-right {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .sys-icon {
+    .kb-notice-icon {
+      background: #888;
+      color: #fff;
+      border-radius: 50%;
+      width: 14px;
+      height: 14px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 16px;
-      height: 12px;
-    }
-    .battery-text {
-      font-size: 11px;
-      font-weight: 700;
+      font-size: 9px;
+      font-weight: bold;
+      flex-shrink: 0;
+      margin-top: 1px;
     }
 
-    /* 은행 앱 콘텐츠 */
-    .content-area {
-      flex: 1;
-      overflow-y: auto;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* 국민은행 스타일 */
-    .kb-container {
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .kb-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-    }
-    .kb-title {
-      font-size: 14px;
-      color: #666;
-      font-weight: 600;
-    }
-    .kb-icons {
-      display: flex;
-      gap: 12px;
-    }
-    .kb-icon-btn {
-      width: 24px;
-      height: 24px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      cursor: pointer;
-      background: #fff;
-    }
-
-    .kb-main {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .kb-character {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #a0826d 0%, #c9a77b 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 50px;
-      margin-bottom: 8px;
-    }
-
-    .kb-recipient {
-      font-size: 18px;
-      font-weight: 700;
-      color: #111;
-      text-align: center;
-    }
-
-    .kb-amount {
-      font-size: 24px;
-      font-weight: 700;
-      color: #111;
-      text-align: center;
-    }
-
-    .kb-status {
-      font-size: 13px;
-      color: #999;
-      text-align: center;
-    }
-
-    .kb-account-box {
-      background: #f5f5f5;
-      border-radius: 12px;
-      padding: 16px;
-      margin-top: 8px;
-    }
-
-    .kb-account-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 8px 0;
-      font-size: 13px;
-      border-bottom: 1px solid #e0e0e0;
-    }
-    .kb-account-row:last-child {
-      border-bottom: none;
-    }
-    .kb-account-label {
-      color: #666;
-      font-weight: 600;
-    }
-    .kb-account-value {
-      color: #111;
-      font-weight: 500;
-      text-align: right;
-    }
-
-    .kb-buttons {
-      display: flex;
-      gap: 10px;
-      margin-top: 16px;
-    }
-    .kb-btn {
-      flex: 1;
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      background: #f9f9f9;
-      color: #333;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .kb-warning {
-      background: #f0f0f0;
-      border-left: 4px solid #666;
-      padding: 12px;
-      margin-top: 16px;
-      border-radius: 4px;
-      font-size: 12px;
-      color: #666;
-      line-height: 1.5;
-    }
-
-    .kb-confirm-btn {
+    /* 하단 노란색 확인 버튼 */
+    .kb-bottom-btn {
       width: 100%;
-      padding: 16px;
-      background: #ffd700;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
+      height: 54px;
+      background-color: #ffcc00;
+      color: #111;
+      font-size: 17px;
       font-weight: 700;
-      color: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
-      margin-top: auto;
     }
 
-    /* 컨트롤 패널 */
+    /* ========================================================= */
+    /* 우측 컨트롤 패널 UI                                       */
+    /* ========================================================= */
     .control-panel {
       background: #ffffff;
-      border-radius: 20px;
+      border-radius: 16px;
       padding: 25px;
-      width: 460px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-      max-height: 90vh;
-      overflow-y: auto;
+      width: 440px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.06);
     }
     .control-panel h2 {
-      font-size: 20px;
+      font-size: 18px;
       margin-bottom: 20px;
       color: #111;
       border-bottom: 2px solid #f0f2f5;
@@ -262,19 +260,25 @@
       font-size: 13px;
       font-weight: 700;
       color: #007aff;
-      margin: 16px 0 10px 0;
+      margin: 18px 0 10px 0;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
     }
     .form-group {
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
     .form-group label {
       display: block;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 600;
-      color: #555;
+      color: #444;
       margin-bottom: 5px;
+    }
+    .form-row {
+      display: flex;
+      gap: 10px;
+    }
+    .form-row .form-group {
+      flex: 1;
     }
     input[type="text"], input[type="number"], select {
       width: 100%;
@@ -283,245 +287,204 @@
       border-radius: 8px;
       font-size: 13px;
       outline: none;
-      transition: all 0.2s;
-      font-family: inherit;
     }
-    input[type="text"]:focus, select:focus {
+    input:focus, select:focus {
       border-color: #007aff;
-      box-shadow: 0 0 0 3px rgba(0,122,255,0.1);
     }
-
-    .form-row {
-      display: flex;
-      gap: 10px;
-    }
-    .form-row .form-group {
-      flex: 1;
-      margin-bottom: 12px;
-    }
-
     .btn {
       background: #007aff;
       color: #fff;
       border: none;
-      padding: 10px 16px;
+      padding: 10px 14px;
       border-radius: 8px;
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
-      transition: background 0.2s;
       width: 100%;
     }
-    .btn:hover { background: #0056b3; }
-
     .btn-download {
       background: #34C759;
       margin-top: 15px;
-      padding: 12px;
+      padding: 13px;
       font-size: 14px;
     }
-    .btn-download:hover { background: #30B050; }
-
-    .download-info {
-      font-size: 11px;
-      color: #999;
-      text-align: center;
-      margin-top: 8px;
-    }
-
-    .note-box {
-      background: #fffacd;
-      border-left: 3px solid #ffc107;
-      padding: 10px 12px;
-      border-radius: 4px;
-      font-size: 11px;
-      color: #666;
-      margin-top: 10px;
-      line-height: 1.4;
-    }
+    .btn-download:hover { background: #2fb350; }
   </style>
 </head>
 <body>
 
   <div class="main-container">
-    <!-- 왼쪽 화면 프리뷰 -->
+    
+    <!-- 왼쪽 모바일 프리뷰 (완전 직사각형) -->
     <div class="preview-section">
-      <div class="phone-screen" id="phoneScreen" style="width: 360px; height: 780px;">
-        
-        <!-- 상단바 -->
-        <div class="status-bar">
-          <div class="status-left">
-            <span id="timeDisplay">2:28</span>
-          </div>
-          <div class="status-right">
-            <span class="sys-icon">📶</span>
-            <span class="sys-icon">📡</span>
-            <span class="battery-text" id="batteryDisplay">74</span>
-            <span class="sys-icon">🔋</span>
-          </div>
-        </div>
-
-        <!-- 콘텐츠 영역 -->
-        <div class="content-area">
-          <div class="kb-container">
-            
+      <div class="phone-wrapper">
+        <div class="phone-screen" id="phoneScreen" style="width: 360px; height: 740px;">
+          
+          <!-- 국민은행 이체완료 화면 -->
+          <div class="kb-container" id="kbTemplate">
+            <!-- 상단 헤더 -->
             <div class="kb-header">
-              <div class="kb-title">이체</div>
-              <div class="kb-icons">
-                <div class="kb-icon-btn">⏠</div>
-                <div class="kb-icon-btn">☰</div>
+              <span class="title">이체</span>
+              <div class="icons">
+                <!-- 홈 아이콘 SVG -->
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                  <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                <!-- 메뉴 아이콘 SVG -->
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <line x1="3" y1="12" x2="21" y2="12"></line>
+                  <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
               </div>
             </div>
 
-            <div class="kb-main">
-              <div class="kb-character">🐻</div>
-              <div class="kb-recipient" id="recipientName">차상훈 님께</div>
-              <div class="kb-amount" id="amountDisplay">30,000 원</div>
-              <div class="kb-status" id="statusDisplay">이체가 완료되었습니다.</div>
+            <!-- 메인 컨텐츠 -->
+            <div class="kb-content">
+              <!-- 국민은행 캐릭터 SVG 일러스트 -->
+              <svg class="kb-character" viewBox="0 0 120 120">
+                <!-- 동전 배경 -->
+                <circle cx="70" cy="35" r="24" fill="#FFC700"/>
+                <circle cx="70" cy="35" r="20" fill="#FFD738" stroke="#E6A100" stroke-width="1.5"/>
+                <text x="70" y="42" font-size="18" font-weight="900" fill="#E69100" text-anchor="middle">W</text>
+                
+                <!-- 곰돌이 몸통 -->
+                <ellipse cx="50" cy="85" rx="20" ry="22" fill="#8D7362"/>
+                <!-- 곰돌이 머리 -->
+                <circle cx="50" cy="55" r="22" fill="#8D7362"/>
+                <!-- 귀 -->
+                <circle cx="34" cy="40" r="7" fill="#8D7362"/>
+                <circle cx="34" cy="40" r="4" fill="#6E5647"/>
+                <circle cx="66" cy="40" r="7" fill="#8D7362"/>
+                <circle cx="66" cy="40" r="4" fill="#6E5647"/>
+                <!-- 얼굴 (주둥이/코) -->
+                <ellipse cx="50" cy="60" rx="9" ry="7" fill="#FCEBD9"/>
+                <ellipse cx="50" cy="56" rx="4" ry="3" fill="#2B211B"/>
+                <!-- 눈 -->
+                <circle cx="41" cy="52" r="2.5" fill="#2B211B"/>
+                <circle cx="59" cy="52" r="2.5" fill="#2B211B"/>
+                <!-- 손 -->
+                <ellipse cx="64" cy="70" rx="6" ry="4" fill="#8D7362" transform="rotate(-20 64 70)"/>
+              </svg>
+
+              <div class="kb-name-text"><span id="outName">차상훈</span> 님께</div>
+              <div class="kb-amount-text"><span id="outAmount">30,000</span> 원</div>
+              <div class="kb-complete-text">이체가 완료되었습니다.</div>
+
+              <!-- 계좌 캡슐 -->
+              <div class="kb-account-box">
+                <span id="outBank">케이뱅크</span>
+                <span id="outAccount">100-215-386552</span>
+                <span class="kb-star-icon">☆</span>
+              </div>
+
+              <!-- 액션 링크 -->
+              <div class="kb-action-links">
+                <span>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                  </svg>
+                  메시지카드
+                </span>
+                <span class="kb-action-divider">|</span>
+                <span>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="18" cy="5" r="3"></circle>
+                    <circle cx="6" cy="12" r="3"></circle>
+                    <circle cx="18" cy="19" r="3"></circle>
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                  </svg>
+                  공유하기
+                </span>
+              </div>
+
+              <!-- 이체 상세정보 구분선 -->
+              <div class="kb-detail-toggle">
+                이체 상세정보 ∨
+              </div>
+
+              <!-- 서브 버튼 -->
+              <div class="kb-btn-row">
+                <div class="kb-btn-sub">추가이체</div>
+                <div class="kb-btn-sub">거래내역조회</div>
+              </div>
+
+              <!-- 유의사항 -->
+              <div class="kb-notice">
+                <span class="kb-notice-icon">!</span>
+                <div>다른 은행 계좌로 이체 시 입금 은행의 사정에 따라 해당 계좌의 입금이 다소 지연될 수 있습니다.</div>
+              </div>
+
             </div>
 
-            <div class="kb-account-box">
-              <div class="kb-account-row">
-                <span class="kb-account-label">받는 분</span>
-                <span class="kb-account-value" id="recipientNameAlt">차상훈</span>
-              </div>
-              <div class="kb-account-row">
-                <span class="kb-account-label">받는 계좌</span>
-                <span class="kb-account-value" id="recipientAccountDisplay">케이뱅크 100215386552</span>
-              </div>
-              <div class="kb-account-row">
-                <span class="kb-account-label">이체금액</span>
-                <span class="kb-account-value" id="amountAlt">420,000원</span>
-              </div>
-              <div class="kb-account-row">
-                <span class="kb-account-label">출금계좌</span>
-                <span class="kb-account-value" id="senderAccountDisplay">우체국 300566020203310</span>
-              </div>
-              <div class="kb-account-row">
-                <span class="kb-account-label">수수료</span>
-                <span class="kb-account-value" id="feeDisplay">면제</span>
-              </div>
-              <div class="kb-account-row">
-                <span class="kb-account-label">내 통장표기</span>
-                <span class="kb-account-value" id="noteMemoDisplay">차상훈</span>
-              </div>
-              <div class="kb-account-row">
-                <span class="kb-account-label">받는 분 통장표기</span>
-                <span class="kb-account-value" id="recipientMemoDisplay">김용</span>
-              </div>
-            </div>
-
-            <div class="kb-buttons">
-              <div class="kb-btn">추가이체</div>
-              <div class="kb-btn">거래내역조회</div>
-            </div>
-
-            <div class="kb-warning">
-              다른 은행 계좌로 이체 시 입금 은행의 사정에 따라 해당 계좌의 입금 은행의 사정에 따라 지연될 수 있습니다.
-            </div>
-
+            <!-- 하단 확인 버튼 -->
+            <div class="kb-bottom-btn">확인</div>
           </div>
+
         </div>
-
-        <button class="kb-confirm-btn">확인</button>
-
       </div>
 
-      <!-- 다운로드 버튼 -->
-      <button class="btn btn-download" id="btnDownload">📥 JPG 다운로드</button>
-      <div class="download-info">직사각형 캡처 이미지로 저장됩니다</div>
+      <!-- 이미지 저장 버튼 -->
+      <button class="btn btn-download" id="btnDownload">📥 직사각형 JPG 이미지 다운로드</button>
     </div>
 
-    <!-- 오른쪽 편집 패널 -->
+    <!-- 오른쪽 정보 커스텀 컨트롤 패널 -->
     <div class="control-panel">
-      <h2>📱 거래내역 편집</h2>
+      <h2>⚙️ 이체 화면 커스텀 설정</h2>
 
-      <!-- 기기 선택 -->
-      <div class="section-title">기기 & 크기</div>
+      <div class="section-title">1. 은행 선택</div>
       <div class="form-group">
-        <label for="deviceSelect">기종 선택</label>
-        <select id="deviceSelect">
-          <option value="360-780">일반 안드로이드 (360 x 780)</option>
-          <option value="375-812">아이폰 13 (375 x 812)</option>
-          <option value="390-844">픽셀 6 (390 x 844)</option>
+        <label for="bankTemplateSelect">은행 템플릿</label>
+        <select id="bankTemplateSelect">
+          <option value="kb">KB국민은행 (적용됨)</option>
+          <option value="other" disabled>기타 은행 (추가 예정)</option>
         </select>
       </div>
 
-      <!-- 은행 선택 (나중에 확장) -->
-      <div class="section-title">은행 선택</div>
+      <div class="section-title">2. 화면 해상도 (크기 조절)</div>
       <div class="form-group">
-        <label for="bankSelect">은행</label>
-        <select id="bankSelect">
-          <option value="kb">국민은행 ✓</option>
-          <option value="shinhan" disabled>신한은행 (준비중)</option>
-          <option value="woori" disabled>우리은행 (준비중)</option>
-          <option value="ibk" disabled>기업은행 (준비중)</option>
+        <label for="devicePreset">기종 선택</label>
+        <select id="devicePreset">
+          <option value="360x740">삼성 갤럭시 S24 (360 x 740)</option>
+          <option value="384 x 810">삼성 갤럭시 Ultra (384 x 810)</option>
+          <option value="393x820">아이폰 15 / Pro (393 x 820)</option>
+          <option value="custom">직접 수동 입력</option>
         </select>
       </div>
-
-      <!-- 시간 & 배터리 -->
-      <div class="section-title">상단바</div>
       <div class="form-row">
         <div class="form-group">
-          <label for="timeInput">시간</label>
-          <input type="text" id="timeInput" value="2:28" placeholder="H:MM" />
+          <label for="screenWidth">가로 너비 (px)</label>
+          <input type="number" id="screenWidth" value="360" />
         </div>
         <div class="form-group">
-          <label for="batteryInput">배터리</label>
-          <input type="number" id="batteryInput" value="74" min="0" max="100" />
+          <label for="screenHeight">세로 높이 (px)</label>
+          <input type="number" id="screenHeight" value="740" />
         </div>
       </div>
 
-      <!-- 받는 분 정보 -->
-      <div class="section-title">받는 분 정보</div>
+      <div class="section-title">3. 이체 내용 수정</div>
       <div class="form-group">
-        <label for="recipientInput">받는 분 이름</label>
-        <input type="text" id="recipientInput" value="차상훈" />
-      </div>
-      <div class="form-group">
-        <label for="recipientAccountInput">받는 계좌 (은행명 계좌번호)</label>
-        <input type="text" id="recipientAccountInput" value="케이뱅크 100215386552" />
-      </div>
-      <div class="form-group">
-        <label for="recipientMemoInput">받는 분 통장표기</label>
-        <input type="text" id="recipientMemoInput" value="김용" />
+        <label for="inName">받는 사람 이름</label>
+        <input type="text" id="inName" value="차상훈" placeholder="예: 차상훈" />
       </div>
 
-      <!-- 이체 금액 -->
-      <div class="section-title">이체 정보</div>
       <div class="form-group">
-        <label for="amountInput">이체 금액 (숫자만 입력, 쉼표 자동)</label>
-        <input type="number" id="amountInput" value="420000" />
-      </div>
-      <div class="form-group">
-        <label for="amountMainInput">메인 표시 금액 (숫자만)</label>
-        <input type="number" id="amountMainInput" value="30000" />
+        <label for="inAmount">이체 금액 (원)</label>
+        <input type="text" id="inAmount" value="30,000" placeholder="예: 30,000" />
       </div>
 
-      <!-- 출금 계좌 -->
-      <div class="section-title">출금 계좌</div>
-      <div class="form-group">
-        <label for="senderAccountInput">출금계좌 (은행명 계좌번호)</label>
-        <input type="text" id="senderAccountInput" value="우체국 300566020203310" />
-      </div>
-      <div class="form-group">
-        <label for="senderMemoInput">내 통장표기</label>
-        <input type="text" id="senderMemoInput" value="차상훈" />
-      </div>
-
-      <!-- 기타 -->
-      <div class="section-title">기타</div>
-      <div class="form-group">
-        <label for="feeInput">수수료</label>
-        <input type="text" id="feeInput" value="면제" />
-      </div>
-      <div class="form-group">
-        <label for="statusInput">상태 메시지</label>
-        <input type="text" id="statusInput" value="이체가 완료되었습니다." />
-      </div>
-
-      <div class="note-box">
-        💡 <strong>팁:</strong> 입력 필드를 수정하면 왼쪽 미리보기가 실시간으로 업데이트됩니다!
+      <div class="form-row">
+        <div class="form-group">
+          <label for="inBank">입금 은행</label>
+          <input type="text" id="inBank" value="케이뱅크" placeholder="예: 케이뱅크" />
+        </div>
+        <div class="form-group">
+          <label for="inAccount">계좌 번호</label>
+          <input type="text" id="inAccount" value="100-215-386552" placeholder="예: 100-215-386552" />
+        </div>
       </div>
 
     </div>
@@ -530,115 +493,87 @@
   <script>
     // DOM 요소
     const phoneScreen = document.getElementById('phoneScreen');
-    const deviceSelect = document.getElementById('deviceSelect');
-    
-    const timeInput = document.getElementById('timeInput');
-    const batteryInput = document.getElementById('batteryInput');
-    const timeDisplay = document.getElementById('timeDisplay');
-    const batteryDisplay = document.getElementById('batteryDisplay');
+    const devicePreset = document.getElementById('devicePreset');
+    const screenWidth = document.getElementById('screenWidth');
+    const screenHeight = document.getElementById('screenHeight');
 
-    const recipientInput = document.getElementById('recipientInput');
-    const recipientName = document.getElementById('recipientName');
-    const recipientNameAlt = document.getElementById('recipientNameAlt');
+    const inName = document.getElementById('inName');
+    const inAmount = document.getElementById('inAmount');
+    const inBank = document.getElementById('inBank');
+    const inAccount = document.getElementById('inAccount');
 
-    const recipientAccountInput = document.getElementById('recipientAccountInput');
-    const recipientAccountDisplay = document.getElementById('recipientAccountDisplay');
-
-    const recipientMemoInput = document.getElementById('recipientMemoInput');
-    const recipientMemoDisplay = document.getElementById('recipientMemoDisplay');
-
-    const amountInput = document.getElementById('amountInput');
-    const amountMainInput = document.getElementById('amountMainInput');
-    const amountDisplay = document.getElementById('amountDisplay');
-    const amountAlt = document.getElementById('amountAlt');
-
-    const senderAccountInput = document.getElementById('senderAccountInput');
-    const senderAccountDisplay = document.getElementById('senderAccountDisplay');
-
-    const senderMemoInput = document.getElementById('senderMemoInput');
-    const noteMemoDisplay = document.getElementById('noteMemoDisplay');
-
-    const feeInput = document.getElementById('feeInput');
-    const feeDisplay = document.getElementById('feeDisplay');
-
-    const statusInput = document.getElementById('statusInput');
-    const statusDisplay = document.getElementById('statusDisplay');
+    const outName = document.getElementById('outName');
+    const outAmount = document.getElementById('outAmount');
+    const outBank = document.getElementById('outBank');
+    const outAccount = document.getElementById('outAccount');
 
     const btnDownload = document.getElementById('btnDownload');
 
-    // 기기 크기 변경
-    deviceSelect.addEventListener('change', (e) => {
-      const [width, height] = e.target.value.split('-');
-      phoneScreen.style.width = width + 'px';
-      phoneScreen.style.height = height + 'px';
-    });
-
-    // 실시간 업데이트 함수
-    function updateDisplay() {
-      timeDisplay.textContent = timeInput.value || '0:00';
-      batteryDisplay.textContent = batteryInput.value || '0';
-      
-      recipientName.textContent = recipientInput.value + ' 님께';
-      recipientNameAlt.textContent = recipientInput.value;
-      
-      recipientAccountDisplay.textContent = recipientAccountInput.value;
-      recipientMemoDisplay.textContent = recipientMemoInput.value;
-      
-      const amountMain = parseInt(amountMainInput.value) || 0;
-      amountDisplay.textContent = amountMain.toLocaleString() + ' 원';
-      
-      const amount = parseInt(amountInput.value) || 0;
-      amountAlt.textContent = amount.toLocaleString() + '원';
-      
-      senderAccountDisplay.textContent = senderAccountInput.value;
-      noteMemoDisplay.textContent = senderMemoInput.value;
-      
-      feeDisplay.textContent = feeInput.value;
-      statusDisplay.textContent = statusInput.value;
-    }
-
-    // 모든 입력 필드에 이벤트 리스너 추가
-    [timeInput, batteryInput, recipientInput, recipientAccountInput, recipientMemoInput,
-     amountInput, amountMainInput, senderAccountInput, senderMemoInput, feeInput, statusInput]
-      .forEach(input => input.addEventListener('input', updateDisplay));
-
-    // JPG 다운로드
-    btnDownload.addEventListener('click', async () => {
-      btnDownload.disabled = true;
-      btnDownload.textContent = '📥 변환 중...';
-
-      try {
-        const canvas = await html2canvas(phoneScreen, {
-          backgroundColor: '#ffffff',
-          scale: 2,
-          logging: false,
-          useCORS: true
-        });
-
-        const link = document.createElement('a');
-        link.href = canvas.toDataURL('image/jpeg', 0.95);
-        
-        const now = new Date();
-        const timestamp = now.getFullYear() + 
-                         String(now.getMonth() + 1).padStart(2, '0') +
-                         String(now.getDate()).padStart(2, '0') + '_' +
-                         String(now.getHours()).padStart(2, '0') +
-                         String(now.getMinutes()).padStart(2, '0');
-        
-        link.download = `KB거래내역_${timestamp}.jpg`;
-        link.click();
-
-      } catch (error) {
-        console.error('다운로드 오류:', error);
-        alert('이미지 저장 중 오류가 발생했습니다.');
-      } finally {
-        btnDownload.disabled = false;
-        btnDownload.textContent = '📥 JPG 다운로드';
+    // 1. 실시간 텍스트 연동
+    inName.addEventListener('input', (e) => outName.textContent = e.target.value || '홍길동');
+    inBank.addEventListener('input', (e) => outBank.textContent = e.target.value || 'OO은행');
+    inAccount.addEventListener('input', (e) => outAccount.textContent = e.target.value || '123-456-789');
+    
+    // 금액 천단위 콤마 자동 생성
+    inAmount.addEventListener('input', (e) => {
+      let val = e.target.value.replace(/[^0-9]/g, '');
+      if (val) {
+        val = Number(val).toLocaleString();
+        e.target.value = val;
+        outAmount.textContent = val;
+      } else {
+        outAmount.textContent = '0';
       }
     });
 
-    // 초기 업데이트
-    updateDisplay();
+    // 2. 화면 사이즈 조절
+    devicePreset.addEventListener('change', (e) => {
+      const val = e.target.value;
+      if (val !== 'custom') {
+        const [w, h] = val.split('x');
+        screenWidth.value = w;
+        screenHeight.value = h;
+        phoneScreen.style.width = w + 'px';
+        phoneScreen.style.height = h + 'px';
+      }
+    });
+
+    screenWidth.addEventListener('input', () => {
+      devicePreset.value = 'custom';
+      phoneScreen.style.width = screenWidth.value + 'px';
+    });
+    screenHeight.addEventListener('input', () => {
+      devicePreset.value = 'custom';
+      phoneScreen.style.height = screenHeight.value + 'px';
+    });
+
+    // 3. 직사각형 JPG 고해상도 다운로드
+    btnDownload.addEventListener('click', async () => {
+      btnDownload.disabled = true;
+      btnDownload.textContent = '⏳ 이미지 생성 중...';
+
+      try {
+        const canvas = await html2canvas(phoneScreen, {
+          scale: 3, // 고화질 출력 (3배율)
+          useCORS: true,
+          backgroundColor: '#ffffff'
+        });
+
+        const link = document.createElement('a');
+        const now = new Date();
+        const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
+        
+        link.href = canvas.toDataURL('image/jpeg', 0.98);
+        link.download = `KB_이체완료_${outName.textContent}_${dateStr}.jpg`;
+        link.click();
+      } catch (err) {
+        alert('이미지 저장 중 오류가 발생했습니다.');
+        console.error(err);
+      } finally {
+        btnDownload.disabled = false;
+        btnDownload.textContent = '📥 직사각형 JPG 이미지 다운로드';
+      }
+    });
   </script>
 </body>
 </html>
